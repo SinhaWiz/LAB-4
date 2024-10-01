@@ -1,23 +1,57 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 public class JSONParser implements FileParser {
     @Override
-    public List<Book> parseFile(String fileName) throws IOException {
-        List<Book> books = new ArrayList<Book>();
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
+    public List<Book> parseFile(String fileName) throws Exception {
+        List<Book> books = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        StringBuilder jsonBuilder = new StringBuilder();
         String line;
-
-        while((line=br.readLine())!= null){
-            String [] values = line.split(",");
-            Book book = new Book(values[0],values[1],Integer.parseInt(values[2]),values[3],values[4] );
-            books.add(book);
+        while ((line = reader.readLine()) != null) {
+            jsonBuilder.append(line);
         }
-        br.close();
+        reader.close();
+        String json = jsonBuilder.toString().trim();
+        json = json.substring(1, json.length() - 1).trim();
+        String[] entries = json.split("},\\s*\\{");
+        for (String entry : entries) {
+            entry = entry.replaceAll("[\\[\\]{}\"]", "").trim();
+            String[] keyValuePairs = entry.split(",");
+            String title = null;
+            String author = null;
+            String genre = null;
+            int pages = 0;
+            String dateRead = null;
+            for (String pair : keyValuePairs) {
+                String[] keyValue = pair.split(":");
+                String key = keyValue[0].trim();
+                String value = keyValue[1].trim();
+                switch (key) {
+                    case "title":
+                        title = value;
+                        break;
+                    case "author":
+                        author = value;
+                        break;
+                    case "genre":
+                        genre = value;
+                        break;
+                    case "pages":
+                        pages = Integer.parseInt(value);
+                        break;
+                    case "date_read":
+                        dateRead = value;
+                        break;
+                }
+            }
+            if (title != null && author != null && genre != null && pages > 0 && dateRead != null) {
+                books.add(new Book(title, author,  pages,genre, dateRead));
+            } else {
+                throw new IllegalArgumentException("Malformed JSON entry found: " + entry);
+            }
+        }
         return books;
     }
 }

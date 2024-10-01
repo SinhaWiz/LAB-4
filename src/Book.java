@@ -8,7 +8,7 @@ public class Book {
         this.title = title;
         this.author = author;
         this.pages = pages;
-        this.genre = genre;
+        this.genre = String.valueOf(genre);
         this.dateRead = dateRead;
     }
     public String getTitle() {
@@ -34,5 +34,9 @@ public class Book {
                 ", pages=" + pages +
                 ", dateRead='" + dateRead + '\'' +
                 '}';
+    }
+
+    public String getDateRead() {
+        return dateRead;
     }
 }
