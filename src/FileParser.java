@@ -1,4 +1,4 @@
 import java.util.List;
 public interface FileParser {
-    public List<Book> parseFile(String fileName);
+    public List<Book> parseFile(String fileName) throws Exception;
 }
